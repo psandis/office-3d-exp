@@ -6,7 +6,7 @@ export default function CameraRig() {
       <CameraControls
         minPolarAngle={0}
         maxPolarAngle={Math.PI}
-        minDistance={1}
+        minDistance={0.3}
         maxDistance={25}
         dollySpeed={1}
         truckSpeed={2}

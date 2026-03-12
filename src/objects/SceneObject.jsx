@@ -26,7 +26,7 @@ export default function SceneObject({
 
   // Spring for hover/click scale
   const { scale } = useSpring({
-    scale: clicked ? 1.08 : hovered ? 1.04 : 1,
+    scale: 1,
     config: { mass: 1, tension: 280, friction: 20 },
   })
 

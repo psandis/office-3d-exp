@@ -19,7 +19,7 @@ export default function Experience() {
 
   const chair = useControls('Chair', {
     x: { value: 0.30, min: -2, max: 2, step: 0.01 },
-    y: { value: 0.08, min: -1, max: 2, step: 0.01 },
+    y: { value: 0, min: -1, max: 2, step: 0.01 },
     z: { value: -0.2, min: -2, max: 2, step: 0.01 },
     scale: { value: 1.7, min: 0.1, max: 5, step: 0.01 },
     rotY: { value: 0, min: -Math.PI, max: Math.PI, step: 0.01 },
