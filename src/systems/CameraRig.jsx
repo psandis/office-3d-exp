@@ -1,18 +1,20 @@
 import { CameraControls, PerspectiveCamera } from '@react-three/drei'
-import { theme } from '../theme'
 
 export default function CameraRig() {
   return (
     <>
       <CameraControls
         minPolarAngle={0}
-        maxPolarAngle={Math.PI / 1.6}
-        minDistance={5}
-        maxDistance={30}
+        maxPolarAngle={Math.PI}
+        minDistance={1}
+        maxDistance={25}
+        dollySpeed={1}
+        truckSpeed={2}
+        smoothTime={0.25}
       />
       <PerspectiveCamera
         makeDefault
-        position={theme.camera.defaultPosition}
+        position={[6, 5, 6]}
         fov={50}
       />
     </>
