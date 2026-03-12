@@ -5,6 +5,8 @@ import Desk from './objects/Desk'
 import Chair from './objects/Chair'
 import Laptop from './objects/Laptop'
 import Mouse from './objects/Mouse'
+import CeilingLights from './objects/CeilingLights'
+import WallPoster from './objects/WallPoster'
 import CameraRig from './systems/CameraRig'
 import PostProcessing from './systems/PostProcessing'
 
@@ -41,6 +43,13 @@ export default function Experience() {
     rotY: { value: 0, min: -Math.PI, max: Math.PI, step: 0.01 },
   })
 
+  const poster = useControls('Poster', {
+    x: { value: 1.0, min: -2, max: 2, step: 0.01 },
+    y: { value: 1.6, min: 0, max: 2.7, step: 0.01 },
+    z: { value: -1.48, min: -2, max: 2, step: 0.01 },
+    rotY: { value: 0, min: -Math.PI, max: Math.PI, step: 0.01 },
+  })
+
   return (
     <>
       <CameraRig />
@@ -49,6 +58,8 @@ export default function Experience() {
 
       {/* Office room */}
       <Level />
+      <CeilingLights />
+      <WallPoster position={[poster.x, poster.y, poster.z]} rotation={[0, poster.rotY, 0]} />
       <Desk position={[desk.x, desk.y, desk.z]} scale={desk.scale} rotation={[0, desk.rotY, 0]} />
       <Chair position={[chair.x, chair.y, chair.z]} scale={chair.scale} rotation={[0, chair.rotY, 0]} />
       <Laptop position={[laptop.x, laptop.y, laptop.z]} scale={laptop.scale} rotation={[0, laptop.rotY, 0]} />

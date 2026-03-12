@@ -8,6 +8,7 @@ const accentColor = '#d4593a'
 const W = 4
 const D = 3
 const H = 2.7
+const T = 0.02 // wall thickness
 
 function createCarpetTexture() {
   const size = 256
@@ -60,41 +61,68 @@ export default function Level() {
 
   return (
     <group>
-      {/* Floor — carpet */}
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0, 0]} receiveShadow>
-        <planeGeometry args={[W, D]} />
+      {/* Floor — box with thickness, interior face at y=0 */}
+      <mesh position={[0, -T / 2, -T / 2]} receiveShadow>
+        <boxGeometry args={[W + 2 * T, T, D + T]} />
         <meshStandardMaterial map={carpetTex} roughness={0.95} />
       </mesh>
 
-      {/* Back wall */}
-      <mesh position={[0, H / 2, -D / 2]} receiveShadow>
-        <planeGeometry args={[W, H]} />
+      {/* Back wall — split into 4 sections around window opening */}
+      {/* Window opening: x[-1.4, -0.2] y[0.785, 2.185] */}
+      {/* Left section */}
+      <mesh position={[-1.71, H / 2, -D / 2 - T / 2]} receiveShadow>
+        <boxGeometry args={[0.62, H, T]} />
+        <meshStandardMaterial color={wallColor} />
+      </mesh>
+      {/* Right section */}
+      <mesh position={[0.91, H / 2, -D / 2 - T / 2]} receiveShadow>
+        <boxGeometry args={[2.22, H, T]} />
+        <meshStandardMaterial color={wallColor} />
+      </mesh>
+      {/* Top section (above window) */}
+      <mesh position={[-0.8, 2.4425, -D / 2 - T / 2]} receiveShadow>
+        <boxGeometry args={[1.2, 0.515, T]} />
+        <meshStandardMaterial color={wallColor} />
+      </mesh>
+      {/* Bottom section (below window) */}
+      <mesh position={[-0.8, 0.3925, -D / 2 - T / 2]} receiveShadow>
+        <boxGeometry args={[1.2, 0.785, T]} />
         <meshStandardMaterial color={wallColor} />
       </mesh>
 
       {/* Left wall */}
-      <mesh position={[-W / 2, H / 2, 0]} rotation={[0, Math.PI / 2, 0]} receiveShadow>
-        <planeGeometry args={[D, H]} />
+      <mesh position={[-W / 2 - T / 2, H / 2, 0]} receiveShadow>
+        <boxGeometry args={[T, H, D]} />
         <meshStandardMaterial color={wallColor} />
       </mesh>
 
       {/* Right wall (accent) */}
-      <mesh position={[W / 2, H / 2, 0]} rotation={[0, -Math.PI / 2, 0]} receiveShadow>
-        <planeGeometry args={[D, H]} />
+      <mesh position={[W / 2 + T / 2, H / 2, 0]} receiveShadow>
+        <boxGeometry args={[T, H, D]} />
         <meshStandardMaterial color={accentColor} />
+      </mesh>
+
+      {/* Ceiling */}
+      <mesh position={[0, H + T / 2, -T / 2]}>
+        <boxGeometry args={[W + 2 * T, T, D + T]} />
+        <meshStandardMaterial color="#e8e4de" />
       </mesh>
 
       {/* Window on back wall */}
       <group position={[-0.8, H * 0.55, -D / 2 + 0.01]}>
-        {/* Window glass — emissive sky light */}
+        {/* Window glass */}
         <mesh>
           <planeGeometry args={[1.2, 1.4]} />
-          <meshStandardMaterial
+          <meshPhysicalMaterial
             color="#87ceeb"
             emissive="#87ceeb"
-            emissiveIntensity={0.6}
+            emissiveIntensity={0.3}
             transparent
-            opacity={0.85}
+            opacity={0.4}
+            transmission={0.6}
+            roughness={0.05}
+            metalness={0.1}
+            side={2}
           />
         </mesh>
         {/* Horizontal divider */}
