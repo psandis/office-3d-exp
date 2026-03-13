@@ -2,7 +2,6 @@ import { useMemo } from 'react'
 import { CanvasTexture, RepeatWrapping, SRGBColorSpace } from 'three'
 
 const wallColor = '#e8e0d4'
-const accentColor = '#d4593a'
 
 // 1 unit = 1 meter. Room: 4m wide, 3m deep, 2.7m tall
 const W = 4
@@ -99,7 +98,7 @@ export default function Level() {
       {/* Right wall (accent) */}
       <mesh position={[W / 2 + T / 2, H / 2, 0]} receiveShadow>
         <boxGeometry args={[T, H, D]} />
-        <meshStandardMaterial color={accentColor} />
+        <meshStandardMaterial color={wallColor} />
       </mesh>
 
       {/* Ceiling */}

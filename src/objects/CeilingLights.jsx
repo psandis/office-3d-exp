@@ -6,14 +6,14 @@ export default function CeilingLights({ ceilingHeight = 2.7 }) {
       {positions.map(([x, z], i) => (
         <group key={i} position={[x, ceilingHeight - 0.01, z]}>
           <mesh rotation={[-Math.PI / 2, 0, 0]}>
-            <circleGeometry args={[0.02, 12]} />
-            <meshStandardMaterial emissive="#fff5e6" emissiveIntensity={3} side={2} />
+            <circleGeometry args={[0.001, 8]} />
+            <meshStandardMaterial emissive="#fff5e6" emissiveIntensity={0.3} side={2} />
           </mesh>
           <pointLight
             position={[0, -0.05, 0]}
-            intensity={0.4}
+            intensity={0.15}
             color="#fff5e6"
-            distance={3}
+            distance={2.5}
             decay={2}
           />
         </group>
