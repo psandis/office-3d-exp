@@ -1,5 +1,7 @@
 # 3D Interactive Office Experience
 
+![Office 3D Experience](public/office-3d-exp.png)
+
 A browser-based 3D scene built with React Three Fiber — think AAA game lobby meets portfolio website. Visitors land in a living, animated 3D environment that feels like walking into a game level, not browsing a webpage.
 
 ## Features
