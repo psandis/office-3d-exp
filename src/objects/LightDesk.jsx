@@ -2,7 +2,7 @@ import { useGLTF } from '@react-three/drei'
 import SceneObject from './SceneObject'
 
 export default function LightDesk({ scale = 1, rotation, ...props }) {
-  const { scene } = useGLTF('/models/light-desk.glb')
+  const { scene } = useGLTF('models/light-desk.glb')
   return (
     <SceneObject id="light-desk" idleAnimation="none" rotation={rotation} {...props}>
       <primitive object={scene.clone()} scale={scale} />
@@ -10,4 +10,4 @@ export default function LightDesk({ scale = 1, rotation, ...props }) {
   )
 }
 
-useGLTF.preload('/models/light-desk.glb')
+useGLTF.preload('models/light-desk.glb')

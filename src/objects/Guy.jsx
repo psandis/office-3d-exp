@@ -10,13 +10,13 @@ import SceneObject from './SceneObject'
 const MODEL_SCALE_CORRECTION = 0.127
 
 const ANIMATIONS = {
-  sitting: '/models/animate-guy/Sitting.fbx',
-  typing: '/models/animate-guy/Typing.fbx',
-  walking: '/models/animate-guy/Walking.fbx',
+  sitting: 'models/animate-guy/Sitting.fbx',
+  typing: 'models/animate-guy/Typing.fbx',
+  walking: 'models/animate-guy/Walking.fbx',
 }
 
 export default function Guy({ scale = 1, animation = 'typing', rotation, ...props }) {
-  const { scene } = useGLTF('/models/guy.glb')
+  const { scene } = useGLTF('models/guy.glb')
   const clonedScene = useMemo(() => clone(scene), [scene])
   const mixerRef = useRef(null)
   const currentAction = useRef(null)
@@ -125,4 +125,4 @@ export default function Guy({ scale = 1, animation = 'typing', rotation, ...prop
   )
 }
 
-useGLTF.preload('/models/guy.glb')
+useGLTF.preload('models/guy.glb')

@@ -86,7 +86,7 @@ function renderTerminal(ctx, lines, inputText, cursorOn) {
 }
 
 export default function Laptop({ scale = 1.3, rotation, ...props }) {
-  const { scene } = useGLTF('/models/laptop.glb')
+  const { scene } = useGLTF('models/laptop.glb')
   const canvasRef = useRef(document.createElement('canvas'))
   const ctxRef = useRef(null)
   const texRef = useRef(null)
@@ -242,4 +242,4 @@ export default function Laptop({ scale = 1.3, rotation, ...props }) {
   )
 }
 
-useGLTF.preload('/models/laptop.glb')
+useGLTF.preload('models/laptop.glb')

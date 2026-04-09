@@ -1,7 +1,7 @@
 import { useGLTF, MeshWobbleMaterial } from '@react-three/drei'
 import SceneObject from './SceneObject'
 
-const MODEL_PATH = '/level-react-draco.glb'
+const MODEL_PATH = 'level-react-draco.glb'
 
 export default function Cactus() {
   const { nodes, materials } = useGLTF(MODEL_PATH)

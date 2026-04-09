@@ -3,7 +3,7 @@ import { useGLTF } from '@react-three/drei'
 import { useSpring, a } from '@react-spring/three'
 import SceneObject from './SceneObject'
 
-const MODEL_PATH = '/level-react-draco.glb'
+const MODEL_PATH = 'level-react-draco.glb'
 
 export default function CameraObj() {
   const { nodes, materials } = useGLTF(MODEL_PATH)

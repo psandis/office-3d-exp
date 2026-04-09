@@ -2,7 +2,7 @@ import { useGLTF } from '@react-three/drei'
 import SceneObject from './SceneObject'
 
 export default function Mouse({ scale = 1.5, rotation, ...props }) {
-  const { scene } = useGLTF('/models/mouse.glb')
+  const { scene } = useGLTF('models/mouse.glb')
   return (
     <SceneObject id="mouse" idleAnimation="none" rotation={rotation} {...props}>
       <primitive object={scene.clone()} scale={scale} />
@@ -10,4 +10,4 @@ export default function Mouse({ scale = 1.5, rotation, ...props }) {
   )
 }
 
-useGLTF.preload('/models/mouse.glb')
+useGLTF.preload('models/mouse.glb')
