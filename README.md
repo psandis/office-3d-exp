@@ -2,6 +2,8 @@
 
 ![Office 3D Experience](public/office-3d-exp.png)
 
+**[Live Demo](https://psandis.github.io/office-3d-exp/)**
+
 A browser-based 3D scene built with React Three Fiber — think AAA game lobby meets portfolio website. Visitors land in a living, animated 3D environment that feels like walking into a game level, not browsing a webpage.
 
 ## Features
