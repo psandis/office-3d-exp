@@ -4,7 +4,7 @@ import { useGLTF } from '@react-three/drei'
 import { useSpring, a } from '@react-spring/three'
 import SceneObject from './SceneObject'
 
-const MODEL_PATH = 'level-react-draco.glb'
+const MODEL_PATH = import.meta.env.BASE_URL + 'level-react-draco.glb'
 
 export default function Sudo() {
   const { nodes } = useGLTF(MODEL_PATH)

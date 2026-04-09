@@ -17,8 +17,14 @@ const useStore = create((set) => ({
   clearHoveredObject: () => set({ hoveredObject: null }),
 
   // Audio
-  audioEnabled: true,
+  audioEnabled: false,
   toggleAudio: () => set((state) => ({ audioEnabled: !state.audioEnabled })),
+
+  // Poster
+  posterMode: 'default',
+  posterText: null,
+  setPosterMode: (mode) => set({ posterMode: mode }),
+  setPosterText: (text) => set({ posterText: text }),
 
   // Intro
   introComplete: false,

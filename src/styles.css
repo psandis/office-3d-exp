@@ -12,12 +12,6 @@ html,
   filter: saturate(1.15) hue-rotate(345deg);
 }
 
-#root * {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
 @keyframes fade-in {
   from {
     opacity: 0;
@@ -28,6 +22,7 @@ html,
 }
 
 canvas {
+  display: block;
   opacity: 0;
   touch-action: none;
   animation: fade-in 1s ease 0.3s forwards;

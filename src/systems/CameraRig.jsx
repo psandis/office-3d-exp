@@ -1,9 +1,12 @@
 import { CameraControls, PerspectiveCamera } from '@react-three/drei'
 
+export const cameraControlsRef = { current: null }
+
 export default function CameraRig() {
   return (
     <>
       <CameraControls
+        ref={(r) => { cameraControlsRef.current = r }}
         minPolarAngle={0}
         maxPolarAngle={Math.PI}
         minDistance={0.3}
@@ -14,7 +17,7 @@ export default function CameraRig() {
       />
       <PerspectiveCamera
         makeDefault
-        position={[6, 5, 6]}
+        position={[0, 2.5, 7]}
         fov={50}
       />
     </>

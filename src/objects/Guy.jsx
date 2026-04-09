@@ -1,25 +1,40 @@
-import { useEffect, useMemo, useRef } from 'react'
+import { useEffect, useMemo, useRef, useCallback } from 'react'
 import { useGLTF } from '@react-three/drei'
 import { useFrame, useLoader } from '@react-three/fiber'
 import { AnimationMixer, CircleGeometry, Euler, MeshBasicMaterial, Mesh, Quaternion } from 'three'
-import { useControls } from 'leva'
 import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader.js'
 import { clone } from 'three/examples/jsm/utils/SkeletonUtils.js'
 import SceneObject from './SceneObject'
 
 const MODEL_SCALE_CORRECTION = 0.127
+const TYPING_SOUND = import.meta.env.BASE_URL + 'sounds/dragon-studio-keyboard-typing-sound-effect-335503.mp3'
 
 const ANIMATIONS = {
-  sitting: 'models/animate-guy/Sitting.fbx',
-  typing: 'models/animate-guy/Typing.fbx',
-  walking: 'models/animate-guy/Walking.fbx',
+  sitting: import.meta.env.BASE_URL + 'models/animate-guy/Sitting.fbx',
+  typing: import.meta.env.BASE_URL + 'models/animate-guy/Typing.fbx',
+  walking: import.meta.env.BASE_URL + 'models/animate-guy/Walking.fbx',
 }
 
-export default function Guy({ scale = 1, animation = 'typing', rotation, ...props }) {
-  const { scene } = useGLTF('models/guy.glb')
+export default function Guy({ scale = 1, animation = 'typing', rotation, introDelay = 0, iris = {}, ...props }) {
+  const { scene } = useGLTF(import.meta.env.BASE_URL + 'models/guy.glb')
   const clonedScene = useMemo(() => clone(scene), [scene])
   const mixerRef = useRef(null)
   const currentAction = useRef(null)
+  const audioRef = useRef(null)
+  const timerRef = useRef(null)
+
+  const playSound = useCallback(() => {
+    if (!audioRef.current) {
+      audioRef.current = new Audio(TYPING_SOUND)
+      audioRef.current.volume = 0.5
+    }
+    clearTimeout(timerRef.current)
+    audioRef.current.currentTime = 0
+    audioRef.current.play().catch(() => {})
+    timerRef.current = setTimeout(() => {
+      audioRef.current.pause()
+    }, 5000)
+  }, [])
 
   // Load all FBX animation files
   const sittingFbx = useLoader(FBXLoader, ANIMATIONS.sitting)
@@ -82,14 +97,6 @@ export default function Guy({ scale = 1, animation = 'typing', rotation, ...prop
   }, [clonedScene])
 
   // Add black iris discs to head bone
-  const iris = useControls('Iris position', {
-    x: { value: 0.3, min: -2, max: 2, step: 0.01 },
-    y: { value: 0.6, min: -2, max: 2, step: 0.01 },
-    z: { value: 0.5, min: -2, max: 2, step: 0.01 },
-    spacing: { value: 0.6, min: 0, max: 2, step: 0.01 },
-    size: { value: 0.15, min: 0.01, max: 0.5, step: 0.01 },
-  })
-
   useEffect(() => {
     if (!headBone) return
     const geom = new CircleGeometry(iris.size, 16)
@@ -119,10 +126,13 @@ export default function Guy({ scale = 1, animation = 'typing', rotation, ...prop
   })
 
   return (
-    <SceneObject id="guy" idleAnimation="none" rotation={rotation} {...props}>
+    <SceneObject id="guy" noGlow idleAnimation="none" introDelay={introDelay} rotation={rotation} {...props}>
+      <mesh visible={false} position={[0, 1.0, 0.15]} onClick={(e) => { e.stopPropagation(); playSound() }}>
+        <boxGeometry args={[0.4, 1.8, 0.3]} />
+      </mesh>
       <primitive object={clonedScene} scale={scale * MODEL_SCALE_CORRECTION} />
     </SceneObject>
   )
 }
 
-useGLTF.preload('models/guy.glb')
+useGLTF.preload(import.meta.env.BASE_URL + 'models/guy.glb')

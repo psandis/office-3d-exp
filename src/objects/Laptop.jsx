@@ -1,12 +1,35 @@
 import { useEffect, useMemo, useRef, useCallback } from 'react'
 import { useGLTF } from '@react-three/drei'
 import { useFrame } from '@react-three/fiber'
-import { CanvasTexture, MeshStandardMaterial, SRGBColorSpace, Float32BufferAttribute } from 'three'
+import { Box3, CanvasTexture, Float32BufferAttribute, MathUtils, MeshStandardMaterial, SRGBColorSpace, Vector3 } from 'three'
 import SceneObject from './SceneObject'
+import { cameraControlsRef } from '../systems/CameraRig'
+import useStore from '../store'
 
 const COMMANDS = {
-  help: [{ color: '#bb9af7', text: 'Commands: ls, cat, whoami, node -v, npm run dev, neofetch, clear, echo' }],
+  help: [
+    { color: '#bb9af7', text: 'Available commands:' },
+    { color: '#9ece6a', text: '  ls, cat, whoami, node -v' },
+    { color: '#9ece6a', text: '  npm run dev, neofetch' },
+    { color: '#9ece6a', text: '  clear, echo, poster' },
+  ],
   ls: [{ color: '#9ece6a', text: 'src/  public/  package.json  vite.config.js  README.md' }],
+  'cat README.md': [
+    { color: '#a9b1d6', text: '# Office 3D Experience' },
+    { text: '' },
+    { color: '#a9b1d6', text: 'Interactive 3D office built with' },
+    { color: '#a9b1d6', text: 'React Three Fiber + Zustand.' },
+    { text: '' },
+    { color: '#a9b1d6', text: 'Click objects. Type commands.' },
+    { color: '#a9b1d6', text: 'Play with the radio.' },
+  ],
+  'cat package.json': [
+    { color: '#565f89', text: '{' },
+    { color: '#7aa2f7', text: '  "name": "office-3d-exp",' },
+    { color: '#7aa2f7', text: '  "version": "0.3.0",' },
+    { color: '#7aa2f7', text: '  "private": true' },
+    { color: '#565f89', text: '}' },
+  ],
   whoami: [{ color: '#9ece6a', text: 'developer' }],
   'node -v': [{ color: '#a9b1d6', text: 'v20.11.0' }],
   'npm run dev': [
@@ -26,6 +49,15 @@ const COMMANDS = {
     { color: '#7aa2f7', text: '/___/______\\___\\ Uptime: ∞' },
   ],
 }
+
+const focusBox = new Box3()
+const focusCenter = new Vector3()
+const focusSize = new Vector3()
+const focusTarget = new Vector3()
+const focusDirection = new Vector3()
+const focusPosition = new Vector3()
+const currentTarget = new Vector3()
+const currentPosition = new Vector3()
 
 function renderTerminal(ctx, lines, inputText, cursorOn) {
   ctx.fillStyle = '#1a1b26'
@@ -85,8 +117,9 @@ function renderTerminal(ctx, lines, inputText, cursorOn) {
   }
 }
 
-export default function Laptop({ scale = 1.3, rotation, ...props }) {
-  const { scene } = useGLTF('models/laptop.glb')
+export default function Laptop({ scale = 1.3, rotation, introDelay = 0, ...props }) {
+  const { scene } = useGLTF(import.meta.env.BASE_URL + 'models/laptop.glb')
+  const introComplete = useStore((s) => s.introComplete)
   const canvasRef = useRef(document.createElement('canvas'))
   const ctxRef = useRef(null)
   const texRef = useRef(null)
@@ -100,6 +133,19 @@ export default function Laptop({ scale = 1.3, rotation, ...props }) {
   const lastBlinkRef = useRef(0)
   const focusedRef = useRef(false)
   const hiddenInputRef = useRef(null)
+  const laptopObjectRef = useRef(null)
+  const camSavedRef = useRef(false)
+  const pointerDownOnLaptopRef = useRef(false)
+  const screenMaterialRef = useRef(null)
+
+  const restoreCamera = useCallback(() => {
+    const cc = cameraControlsRef.current
+    if (cc && camSavedRef.current) {
+      focusedRef.current = false
+      cc.reset(true)
+      camSavedRef.current = false
+    }
+  }, [])
 
   // Init canvas + texture
   useMemo(() => {
@@ -130,6 +176,7 @@ export default function Laptop({ scale = 1.3, rotation, ...props }) {
       emissiveMap: texRef.current,
       emissiveIntensity: 0.5,
     })
+    screenMaterialRef.current = screenMat
     cloned.traverse((child) => {
       if (!child.isMesh) return
       if (child.material && child.material.name === 'metal') {
@@ -174,6 +221,32 @@ export default function Laptop({ scale = 1.3, rotation, ...props }) {
           linesRef.current = []
         } else if (cmd.startsWith('echo ')) {
           linesRef.current.push({ color: '#a9b1d6', text: cmd.slice(5) })
+        } else if (cmd === 'cat') {
+          linesRef.current.push({ color: '#f7768e', text: 'Usage: cat <filename>' })
+        } else if (cmd.startsWith('cat ') && !COMMANDS[cmd]) {
+          linesRef.current.push({ color: '#f7768e', text: `cat: ${cmd.slice(4)}: No such file` })
+        } else if (cmd === 'poster reset') {
+          useStore.getState().setPosterMode('default')
+          useStore.getState().setPosterText(null)
+          linesRef.current.push({ color: '#9ece6a', text: 'Poster reset to default.' })
+        } else if (cmd === 'poster video') {
+          useStore.getState().setPosterMode('video')
+          useStore.getState().setPosterText(null)
+          linesRef.current.push({ color: '#9ece6a', text: 'Poster mode: video' })
+        } else if (cmd.startsWith('poster ')) {
+          const text = cmd.slice(7).slice(0, 80)
+          if (text) {
+            useStore.getState().setPosterMode('text')
+            useStore.getState().setPosterText(text)
+            linesRef.current.push({ color: '#9ece6a', text: `Poster updated: "${text}"` })
+          } else {
+            linesRef.current.push({ color: '#f7768e', text: 'Usage: poster <text|video|reset>' })
+          }
+        } else if (cmd === 'poster') {
+          linesRef.current.push({ color: '#bb9af7', text: 'Usage: poster <text|video|reset>' })
+          linesRef.current.push({ color: '#565f89', text: 'poster <text>  — custom text (max 80 chars)' })
+          linesRef.current.push({ color: '#565f89', text: 'poster video   — animated display' })
+          linesRef.current.push({ color: '#565f89', text: 'poster reset   — back to default' })
         } else if (COMMANDS[cmd]) {
           linesRef.current.push(...COMMANDS[cmd])
         } else if (cmd) {
@@ -201,23 +274,93 @@ export default function Laptop({ scale = 1.3, rotation, ...props }) {
     }
   }, [])
 
-  // Click laptop → focus hidden input
-  const handleClick = useCallback((e) => {
+  // Click laptop → focus hidden input + zoom camera to laptop
+  const handlePointerDown = useCallback((e) => {
+    if (e.object?.material !== screenMaterialRef.current) return
     e.stopPropagation()
-    focusedRef.current = true
-    hiddenInputRef.current?.focus()
+    pointerDownOnLaptopRef.current = true
   }, [])
 
-  // Click elsewhere → blur
-  useEffect(() => {
-    const blur = (e) => {
-      if (e.target !== hiddenInputRef.current) {
-        focusedRef.current = false
+  const handleClick = useCallback((e) => {
+    if (e.object?.material !== screenMaterialRef.current) return
+    e.stopPropagation()
+    const cc = cameraControlsRef.current
+    const laptopObject = laptopObjectRef.current
+
+    if (camSavedRef.current) {
+      restoreCamera()
+      hiddenInputRef.current?.blur()
+      return
+    }
+
+    focusedRef.current = true
+    hiddenInputRef.current?.focus()
+
+    if (cc && laptopObject) {
+      laptopObject.updateWorldMatrix(true, true)
+      focusBox.setFromObject(laptopObject)
+      if (focusBox.isEmpty()) return
+
+      focusBox.getCenter(focusCenter)
+      focusBox.getSize(focusSize)
+
+      const camera = cc.camera
+      const verticalFov = MathUtils.degToRad(camera.getEffectiveFOV ? camera.getEffectiveFOV() : camera.fov)
+      const horizontalFov = 2 * Math.atan(Math.tan(verticalFov / 2) * camera.aspect)
+      const fitHeightDistance = (focusSize.y * 0.5) / Math.tan(verticalFov / 2)
+      const fitWidthDistance = (focusSize.x * 0.5) / Math.tan(horizontalFov / 2)
+      const fitDepthDistance = focusSize.z * 1.8
+      const focusDistance = Math.max(fitHeightDistance, fitWidthDistance, fitDepthDistance) * 0.85
+
+      cc.getTarget(currentTarget)
+      cc.getPosition(currentPosition)
+      focusDirection.subVectors(currentPosition, currentTarget)
+
+      if (focusDirection.lengthSq() < 1e-6) {
+        focusDirection.set(1, 0.5, 1)
       }
+
+      focusDirection.normalize()
+      focusTarget.copy(focusCenter).setY(focusCenter.y + focusSize.y * 0.1)
+      focusPosition.copy(focusTarget).addScaledVector(focusDirection, focusDistance)
+
+      cc.saveState()
+      camSavedRef.current = true
+      cc.setLookAt(
+        focusPosition.x,
+        focusPosition.y,
+        focusPosition.z,
+        focusTarget.x,
+        focusTarget.y,
+        focusTarget.z,
+        true,
+      )
+    }
+  }, [restoreCamera])
+
+  // Click elsewhere → blur + restore camera
+  useEffect(() => {
+    const blur = () => {
+      if (pointerDownOnLaptopRef.current) {
+        pointerDownOnLaptopRef.current = false
+        return
+      }
+
+      restoreCamera()
     }
     window.addEventListener('pointerdown', blur)
     return () => window.removeEventListener('pointerdown', blur)
-  }, [])
+  }, [restoreCamera])
+
+  // Make the hidden terminal input ready once the scene has fully entered.
+  useEffect(() => {
+    if (!introComplete || !hiddenInputRef.current) return
+    const timer = setTimeout(() => {
+      focusedRef.current = true
+      hiddenInputRef.current?.focus()
+    }, introDelay + 900)
+    return () => clearTimeout(timer)
+  }, [introComplete, introDelay])
 
   // Blink cursor
   useFrame((state) => {
@@ -231,15 +374,17 @@ export default function Laptop({ scale = 1.3, rotation, ...props }) {
   })
 
   return (
-    <SceneObject id="laptop" idleAnimation="none" rotation={rotation} {...props}>
+    <SceneObject id="laptop" idleAnimation="none" introDelay={introDelay} rotation={rotation} {...props}>
       <primitive
+        ref={laptopObjectRef}
         object={cloned}
         scale={scale}
         position={[0.17, 0, -0.16]}
+        onPointerDown={handlePointerDown}
         onClick={handleClick}
       />
     </SceneObject>
   )
 }
 
-useGLTF.preload('models/laptop.glb')
+useGLTF.preload(import.meta.env.BASE_URL + 'models/laptop.glb')
